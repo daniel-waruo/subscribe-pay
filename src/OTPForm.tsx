@@ -1,19 +1,24 @@
 import React, {useState} from "react"
 import {Box} from "@mui/system";
-// @ts-ignore
 import OtpInput from 'react-otp-input';
-import {LockOutlined} from "@mui/icons-material";
-import {Avatar, Grid, Typography} from "@mui/material";
+import {Grid, Typography} from "@mui/material";
+import {useRouter} from "next/router";
 
 type OTPFormProps = {
-  setPhone: () => void
+  phone: string
 }
-const OTPForm = ({setPhone}: OTPFormProps) => {
+const OTPForm = ({phone}: OTPFormProps) => {
   const [otp, setOTP] = useState<string>()
+  const router = useRouter()
   const onChangeHandler = (e: React.SetStateAction<string | undefined>) => {
     setOTP(e)
-    if (e?.length === 4){
-      setPhone()
+    if (e?.length === 4) {
+      console.log(`phone -> ${phone}`)
+      console.log(`otp -> ${otp}`)
+      router.push({
+          pathname: '/',
+          query: { phone: phone },
+        })
     }
   }
   return (
@@ -21,9 +26,12 @@ const OTPForm = ({setPhone}: OTPFormProps) => {
       <Grid container justifyContent="center" sx={{marginBottom: "3rem"}}>
         <Grid item container alignItems="center" direction="column">
           <Grid item>
-            <Avatar sx={{backgroundColor: "primary.main", marginY: "3rem"}}>
-              <LockOutlined/>
-            </Avatar>
+            <Box
+              sx={{height: "15rem"}}
+              component="img"
+              alt="Login"
+              src="/otp.svg"
+            />
           </Grid>
           <Grid item>
             <Typography component="h1" variant="h5">
@@ -32,8 +40,8 @@ const OTPForm = ({setPhone}: OTPFormProps) => {
           </Grid>
         </Grid>
         <Grid item xs={12} textAlign="center">
-          <Typography variant="h6">
-            Please enter the verification code sent to your mobile
+          <Typography sx={{color: 'text.light'}} variant="h6">
+            Please enter the verification code sent to your mobile phone
           </Typography>
         </Grid>
       </Grid>
@@ -50,7 +58,8 @@ const OTPForm = ({setPhone}: OTPFormProps) => {
             onChange={onChangeHandler}
             numInputs={4}
             inputStyle={{
-              width: "3rem",
+              width: "100%",
+              maxWidth: '3rem',
               height: "3rem",
               margin: "0 1rem",
               fontSize: "2rem",

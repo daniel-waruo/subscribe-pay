@@ -1,5 +1,4 @@
-import * as React from 'react';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {CircularProgress, Fade, Grid} from "@mui/material";
@@ -9,18 +8,21 @@ import {Provider} from "../types";
 import CardContent from "@mui/material/CardContent";
 import Card from "@mui/material/Card";
 import {Add} from "@mui/icons-material";
-import PhoneForm from "../src/PhoneForm";
 import ProviderModal from "../src/ProviderModal";
+import {useRouter} from "next/router";
 
 function IndexPage() {
   const [providers, setProviders] = useState<Provider[]>()
   const [loading, setLoading] = useState(true)
-  const [phone, setPhone] = useState<string>()
   const [provider, setProvider] = useState<Provider>()
-
+  const {query,push} = useRouter()
+  const phone:string = query.phone as string
+  if (!phone) {
+    push('/login')
+    return null
+  }
   useEffect(
     () => {
-      if (!phone) return
       const searchParams = new URLSearchParams({phone})
       getInstance().get(`/subscriptions/providers?${searchParams.toString()}`, {
         data: {phone}
@@ -39,7 +41,6 @@ function IndexPage() {
     }, [phone]
   )
 
-  if (!phone) return <PhoneForm setPhone={setPhone}/>
   return (
     <Box sx={{background:'primary.main'}} >
       <ProviderModal handleClose={() => setProvider(undefined)} provider={provider}/>

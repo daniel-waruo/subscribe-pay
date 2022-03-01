@@ -1,5 +1,15 @@
-import {Button, Fab, ListItem, ListItemButton, ListItemText, Modal, TextField, Typography} from "@mui/material";
-import {Box} from "@mui/system";
+import {
+  Button,
+  Fab,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Modal,
+  SxProps,
+  TextField,
+  Box,
+  Typography
+} from "@mui/material";
 import {Provider, Subscription} from "../types";
 import List from '@mui/material/List';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -13,13 +23,16 @@ type ProviderModalProps = {
 }
 
 
-const style = {
+const style:SxProps = {
   position: 'absolute' as 'absolute',
   top: '50%',
   left: '50%',
   padding: "1rem",
   transform: 'translate(-50%, -50%)',
-  width: 600,
+  width: {
+    xs: "95%",
+    md: 600
+  },
   height: "90vh",
   overflowY: "auto",
   backgroundColor: 'background.paper',
@@ -35,8 +48,9 @@ type SubscriptionProps = {
 
 const Subscription = ({subscription}: SubscriptionProps) => {
   const [isForm, setIsForm] = useState<boolean>(false)
-  const [phone, setPhone] = useState<string>()
-  const phoneInvalid = !phone ? false : phone.length != 12
+  const [phone, setPhone] = useState<string>("")
+  const phoneIsValid = phone.length == 10 && (phone.startsWith("01") || phone.startsWith("07"));
+
   return (
     <ListItem
       disablePadding
@@ -61,9 +75,9 @@ const Subscription = ({subscription}: SubscriptionProps) => {
           }
           {isForm &&
           <TextField
-            error={phoneInvalid}
+            error={!phoneIsValid}
             defaultValue={'254'}
-            helperText={phoneInvalid ? "Invalid Phone Format" : "Phone Format 254*********"}
+            helperText={"Format e.g 0122334443 ,0722334443 "}
             required sx={{marginRight: '2rem'}}
             onChange={e => {
               setPhone(e.target.value)
@@ -93,7 +107,6 @@ type SubscriptionListProps = {
 }
 
 const SubscriptionList = ({subscriptions}: SubscriptionListProps) => {
-  subscriptions = [...subscriptions, ...subscriptions, ...subscriptions]
   return (
     <List sx={{paddingY: "2rem"}}>
       {subscriptions.map(
@@ -113,9 +126,9 @@ const ProviderModal = ({handleClose, provider}: ProviderModalProps) => {
       <>
         {provider &&
         <Box sx={style}>
-          <Fab sx={{
-            position:'absolute',
-            right:"1rem",
+          <Fab onClick={() => handleClose()} sx={{
+            position: 'absolute',
+            right: "1rem",
           }} color="primary" aria-label="add">
             <CloseTwoToneIcon/>
           </Fab>
