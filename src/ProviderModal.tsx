@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Fab,
+  Grid,
   ListItem,
   ListItemButton,
   ListItemText,
@@ -72,41 +73,49 @@ const Subscription = ({
         boxShadow: "0px 1px 1px -1px #7c30d8,0px 1px 1px 0px #7c30d8,0px 1px 4px 0px #7c30d8"
       }}>
       <form onSubmit={onSubmitHandler} style={{width: '100%'}}>
-        <ListItemButton sx={{padding: "1.5rem"}}>
-          {!isForm ?
-            <>
-              <ListItemText primary={subscription.name} secondary={subscription.description?.slice(0, 20) + "..."}/>
-              <ListItemText sx={{textAlign: "right", marginRight: '2rem'}} primary={`Ksh.${subscription.price}`}
-                            secondary={`every ${subscription.count} ${subscription.interval}(s)`}/>
-            </>
-            : <ListItemText
-              primary={subscription.name}
-              secondary={`Ksh.${subscription.price}/${subscription.count} ${subscription.interval}(s)`}/>
-          }
-          {isForm &&
-          <TextField
-            error={!phoneIsValid}
-            defaultValue={'0'}
-            helperText={"Format e.g 0122334443 ,0722334443 "}
-            required sx={{marginRight: '2rem'}}
-            onChange={e => {
-              setPhone(e.target.value)
-            }}
-            id="phone"
-            label="Phone Number"
-            variant="standard"/>
-          }
-          <Button
-            startIcon={<AttachMoneyIcon/>}
-            disabled={!phoneIsValid && isForm}
-            size={"small"}
-            type={isForm ? "submit" : undefined}
-            variant={'contained'}
-            onClick={() => {
-              setIsForm(subscription)
-            }}>
-            Pay Now
-          </Button>
+        <ListItemButton>
+          <Grid container sx={{width: '100%'}} justifyContent={'right'}>
+            <Grid item xs={12}>
+              {!isForm ?
+                <ListItemButton>
+                  <ListItemText primary={subscription.name} secondary={subscription.description?.slice(0, 20) + "..."}/>
+                  <ListItemText sx={{textAlign: "right", marginRight: '2rem'}} primary={`Ksh.${subscription.price}`}
+                                secondary={`every ${subscription.count} ${subscription.interval}(s)`}/>
+                </ListItemButton>
+                :
+                <ListItemButton>
+                  <ListItemText
+                    primary={subscription.name}
+                    secondary={`Ksh.${subscription.price}/${subscription.count} ${subscription.interval}(s)`}/>
+                  <TextField
+                    error={!phoneIsValid}
+                    defaultValue={'0'}
+                    helperText={"Format e.g 0122334443 ,0722334443 "}
+                    required sx={{marginRight: '2rem'}}
+                    onChange={e => {
+                      setPhone(e.target.value)
+                    }}
+                    id="phone"
+                    label="Phone Number"
+                    variant="standard"/>
+                </ListItemButton>
+              }
+            </Grid>
+            <Grid item>
+              <Button
+                startIcon={<AttachMoneyIcon/>}
+                disabled={!phoneIsValid && isForm}
+                size={"small"}
+                type={isForm ? "submit" : undefined}
+                variant={'contained'}
+                sx={{marginX: "3rem", marginY: "1rem", textAlign: 'left'}}
+                onClick={() => {
+                  setIsForm(subscription)
+                }}>
+                Pay Now
+              </Button>
+            </Grid>
+          </Grid>
         </ListItemButton>
       </form>
     </ListItem>
@@ -179,7 +188,7 @@ const ProviderModal = ({handleClose, provider}: ProviderModalProps) => {
   if (!provider) return null;
 
   const closeHandler = () => {
-    if (transaction?.state != "pending" ) {
+    if (transaction?.state != "pending") {
       setTransaction(undefined)
       handleClose()
     }
