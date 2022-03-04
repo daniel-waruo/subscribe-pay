@@ -6,8 +6,8 @@ import {lighten} from "@mui/material";
 const theme = createTheme({
   palette: {
     background: {
-      paper: '#ffffff',
-      default: '#f5f6fa',
+      paper: 'rgb(255,255,255)',
+      default: 'rgb(249,250,252)',
     },
     primary: {
       main: '#7c30d8',
@@ -15,7 +15,7 @@ const theme = createTheme({
       dark: '#2e2e2e'
     },
     secondary: {
-      main: '#feb95a',
+      main: '#90ECAA',
     },
     error: {
       main: red.A400,

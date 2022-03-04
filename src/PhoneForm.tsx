@@ -1,6 +1,7 @@
 import React, {ChangeEvent, FormEvent, useState} from "react";
 import {Box, Button, lighten, TextField, Typography} from "@mui/material";
-import {Login} from "@mui/icons-material";
+import Login from "@mui/icons-material/Login";
+import {getInstance} from "../axios";
 
 
 type PhoneFormProps = {
@@ -15,7 +16,19 @@ export const PhoneForm = ({setPhone}: PhoneFormProps) => {
   }
   const onSubmitHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (phoneIsValid) setPhone(`254${phone.slice(1)}`)
+    if (phoneIsValid) {
+      const validPhone = `254${phone.slice(1)}`
+      getInstance()
+        .post('send-otp', {phone: validPhone}).then(
+        () => {
+          setPhone(validPhone)
+        }
+      ).catch(
+        () => {
+          alert('Send message failed please try again')
+        }
+      )
+    }
   }
   return (
     <Box sx={{height: "100vh",}}>
@@ -24,7 +37,6 @@ export const PhoneForm = ({setPhone}: PhoneFormProps) => {
         paddingX: "2rem",
         paddingTop: {xs: "5rem"},
         borderRadius: "1rem",
-        backgroundColor: lighten("#7c30d8", 0.95),
         height: {
           sm: "100%",
           md: "20rem"

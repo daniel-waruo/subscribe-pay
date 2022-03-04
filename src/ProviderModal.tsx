@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Fab,
   ListItem,
@@ -7,14 +8,16 @@ import {
   Modal,
   SxProps,
   TextField,
-  Box,
   Typography
 } from "@mui/material";
-import {Provider, Subscription} from "../types";
+import {Provider, Subscription, Transaction} from "../types";
 import List from '@mui/material/List';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import {useState} from "react";
+import {FormEvent, useState} from "react";
 import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
+import {getInstance} from "../axios";
+import {useRouter} from "next/router";
+import PaymentLoader from "./PaymentLoader";
 
 
 type ProviderModalProps = {
@@ -23,7 +26,7 @@ type ProviderModalProps = {
 }
 
 
-const style:SxProps = {
+const style: SxProps = {
   position: 'absolute' as 'absolute',
   top: '50%',
   left: '50%',
@@ -35,21 +38,30 @@ const style:SxProps = {
   },
   height: "90vh",
   overflowY: "auto",
-  backgroundColor: 'background.paper',
+  backgroundColor: "rgba(255,255,255,0.95)",
   border: 'rgba(255,255,255,0.5)',
   boxShadow: 24,
   borderRadius: "1rem"
 }
 
 type SubscriptionProps = {
-  subscription: Subscription
+  subscription: Subscription,
+  onSubmitHandler: (e: FormEvent<HTMLFormElement>) => void,
+  isForm: boolean,
+  setIsForm: (selected: Subscription) => void
+  phoneIsValid: boolean
+  setPhone: (phone: string) => void
 }
 
 
-const Subscription = ({subscription}: SubscriptionProps) => {
-  const [isForm, setIsForm] = useState<boolean>(false)
-  const [phone, setPhone] = useState<string>("")
-  const phoneIsValid = phone.length == 10 && (phone.startsWith("01") || phone.startsWith("07"));
+const Subscription = ({
+                        subscription,
+                        onSubmitHandler,
+                        isForm,
+                        phoneIsValid,
+                        setIsForm,
+                        setPhone
+                      }: SubscriptionProps) => {
 
   return (
     <ListItem
@@ -59,9 +71,7 @@ const Subscription = ({subscription}: SubscriptionProps) => {
         marginBottom: "1rem",
         boxShadow: "0px 1px 1px -1px #7c30d8,0px 1px 1px 0px #7c30d8,0px 1px 4px 0px #7c30d8"
       }}>
-      <form onSubmit={(e) => {
-        e.preventDefault()
-      }} style={{width: '100%'}}>
+      <form onSubmit={onSubmitHandler} style={{width: '100%'}}>
         <ListItemButton sx={{padding: "1.5rem"}}>
           {!isForm ?
             <>
@@ -76,7 +86,7 @@ const Subscription = ({subscription}: SubscriptionProps) => {
           {isForm &&
           <TextField
             error={!phoneIsValid}
-            defaultValue={'254'}
+            defaultValue={'0'}
             helperText={"Format e.g 0122334443 ,0722334443 "}
             required sx={{marginRight: '2rem'}}
             onChange={e => {
@@ -88,11 +98,12 @@ const Subscription = ({subscription}: SubscriptionProps) => {
           }
           <Button
             startIcon={<AttachMoneyIcon/>}
+            disabled={!phoneIsValid && isForm}
             size={"small"}
             type={isForm ? "submit" : undefined}
             variant={'contained'}
             onClick={() => {
-              setIsForm(true)
+              setIsForm(subscription)
             }}>
             Pay Now
           </Button>
@@ -103,47 +114,91 @@ const Subscription = ({subscription}: SubscriptionProps) => {
 }
 
 type SubscriptionListProps = {
-  subscriptions: Subscription[]
+  subscriptions: Subscription[],
+  transaction?: Transaction,
+  setTransaction: (transaction?: Transaction) => void
 }
 
-const SubscriptionList = ({subscriptions}: SubscriptionListProps) => {
+const SubscriptionList = ({subscriptions, transaction, setTransaction}: SubscriptionListProps) => {
+  const [selected, setSelected] = useState<Subscription>()
+  const [phone, setPhone] = useState<string>("")
+  const phoneIsValid = phone.length == 10 && (phone.startsWith("01") || phone.startsWith("07"));
+  const {query} = useRouter()
+
+  const onSubmitHandler = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    getInstance().post('subscriptions/pay', {
+      phone: query.phone,
+      payment_phone: phone,
+      subscription_id: selected?.id,
+      organization_id: selected?.organization
+    }).then(
+      (response) => {
+        setTransaction(response.data)
+      }
+    )
+  }
+  if (transaction) return <PaymentLoader setTransaction={setTransaction}
+                                         transaction={transaction}
+                                         subscription={selected as Subscription}/>
   return (
-    <List sx={{paddingY: "2rem"}}>
-      {subscriptions.map(
-        (subscription, index) => {
-          return <Subscription key={index} subscription={subscription}/>
-        }
-      )}
-    </List>
+    <>
+      <Typography fontSize={"2rem"} textAlign={"center"} fontWeight={"lighter"}> Subscriptions</Typography>
+      <Box
+        sx={{
+          opacity: 0.8,
+          width: '100%',
+          height: "10rem",
+        }}
+        component="img"
+        alt="Subscriptions"
+        src="/subscriptions.svg"/>
+      <List sx={{paddingY: "2rem"}}>
+        {subscriptions.map(
+          (subscription, index) => {
+            const isForm = selected?.id == subscription.id
+            return <Subscription
+              key={index}
+              subscription={subscription}
+              isForm={isForm}
+              onSubmitHandler={onSubmitHandler}
+              phoneIsValid={phoneIsValid}
+              setIsForm={setSelected}
+              setPhone={setPhone}/>
+          }
+        )}
+      </List>
+    </>
   )
 }
 
 
 const ProviderModal = ({handleClose, provider}: ProviderModalProps) => {
+  const [transaction, setTransaction] = useState<Transaction>()
+
   if (!provider) return null;
+
+  const closeHandler = () => {
+    if (transaction?.state != "pending" ) {
+      setTransaction(undefined)
+      handleClose()
+    }
+  }
   return (
-    <Modal open={Boolean(provider)} onClose={handleClose}>
+    <Modal open={Boolean(provider)} onClose={closeHandler}>
       <>
         {provider &&
         <Box sx={style}>
-          <Fab onClick={() => handleClose()} sx={{
+          <Fab onClick={closeHandler} sx={{
             position: 'absolute',
             right: "1rem",
-          }} color="primary" aria-label="add">
+            zIndex: 10000
+          }} color={"primary"} aria-label="add">
             <CloseTwoToneIcon/>
           </Fab>
-          <Typography fontSize={"2rem"} textAlign={"center"} fontWeight={"lighter"}> Subscriptions</Typography>
-          <Box
-            sx={{
-              opacity: 0.8,
-              width: '100%',
-              height: "10rem",
-            }}
-            component="img"
-            alt="Subscriptions"
-            src="/subscriptions.svg"/>
 
-          <SubscriptionList subscriptions={provider.subscriptions}/>
+          <SubscriptionList transaction={transaction} setTransaction={setTransaction}
+                            subscriptions={provider.subscriptions}/>
         </Box>
         }
       </>

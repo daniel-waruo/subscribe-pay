@@ -7,7 +7,6 @@ import {CacheProvider, EmotionCache} from '@emotion/react';
 import theme from '../theme';
 import createEmotionCache from '../createEmotionCache';
 import {NoSsr} from "@mui/material";
-import {Box} from "@mui/system";
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 

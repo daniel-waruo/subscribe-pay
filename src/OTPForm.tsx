@@ -1,8 +1,8 @@
 import React, {useState} from "react"
-import {Box} from "@mui/system";
 import OtpInput from 'react-otp-input';
-import {Grid, Typography} from "@mui/material";
+import {Box, Grid, Typography} from "@mui/material";
 import {useRouter} from "next/router";
+import {getInstance} from "../axios";
 
 type OTPFormProps = {
   phone: string
@@ -10,15 +10,23 @@ type OTPFormProps = {
 const OTPForm = ({phone}: OTPFormProps) => {
   const [otp, setOTP] = useState<string>()
   const router = useRouter()
-  const onChangeHandler = (e: React.SetStateAction<string | undefined>) => {
-    setOTP(e)
-    if (e?.length === 4) {
-      console.log(`phone -> ${phone}`)
-      console.log(`otp -> ${otp}`)
-      router.push({
-          pathname: '/',
-          query: { phone: phone },
-        })
+  const onChangeHandler = (otp: React.SetStateAction<string | undefined>) => {
+    setOTP(otp)
+    if (otp?.length === 4) {
+      getInstance().post('validate-otp', {phone, otp}).then(
+        (response) => {
+          console.log(response.data)
+          if (response.data.is_valid) {
+            router.push({
+              pathname: '/',
+              query: {phone: phone},
+            })
+          } else {
+            setOTP(undefined)
+            alert("Invalid OTP please confirm all digits are correct")
+          }
+        }
+      )
     }
   }
   return (
@@ -52,7 +60,7 @@ const OTPForm = ({phone}: OTPFormProps) => {
         alignItems="center"
         direction="column"
       >
-        <Grid item spacing={3} justifyContent="center">
+        <Grid item >
           <OtpInput
             value={otp}
             onChange={onChangeHandler}

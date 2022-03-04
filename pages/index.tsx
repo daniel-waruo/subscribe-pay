@@ -5,9 +5,6 @@ import {CircularProgress, Fade, Grid} from "@mui/material";
 import ProviderCard from "../src/ProviderCard";
 import {getInstance} from '../axios';
 import {Provider} from "../types";
-import CardContent from "@mui/material/CardContent";
-import Card from "@mui/material/Card";
-import {Add} from "@mui/icons-material";
 import ProviderModal from "../src/ProviderModal";
 import {useRouter} from "next/router";
 
@@ -15,12 +12,9 @@ function IndexPage() {
   const [providers, setProviders] = useState<Provider[]>()
   const [loading, setLoading] = useState(true)
   const [provider, setProvider] = useState<Provider>()
-  const {query,push} = useRouter()
-  const phone:string = query.phone as string
-  if (!phone) {
-    push('/login')
-    return null
-  }
+  const {query, push, isReady} = useRouter()
+  const phone: string = query.phone as string
+
   useEffect(
     () => {
       const searchParams = new URLSearchParams({phone})
@@ -40,48 +34,51 @@ function IndexPage() {
       )
     }, [phone]
   )
-
+  if (!phone && isReady) {
+    push('/login')
+    return null
+  }
   return (
-    <Box sx={{background:'primary.main'}} >
+    <Box sx={{background: 'primary.main'}}>
       <ProviderModal handleClose={() => setProvider(undefined)} provider={provider}/>
       <Box
         sx={{
-          position:'absolute',
-          left:0,
-          backgroundColor:'transparent',
+          position: 'absolute',
+          left: 0,
+          backgroundColor: 'transparent',
           height: '100vh',
-          opacity:'0.5',
-          display:{
-            xs:"none",
-            lg:"inherit"
+          opacity: '0.3',
+          display: {
+            xs: "none",
+            lg: "inherit"
           }
         }}
         component="img"
         alt="Organization illustration."
-        src="/organization2.svg"
+        src="/home2.svg"
       />
       <Box
         sx={{
-          position:'absolute',
-          right:0,
-          backgroundColor:'transparent',
+          position: 'absolute',
+          right: 0,
+          backgroundColor: 'transparent',
           height: '100vh',
-          opacity:'0.5'
+          opacity: '0.3'
         }}
         component="img"
         alt="Organization illustration."
-        src="/organization.svg"
+        src="/home.svg"
       />
       <Box sx={{width: "100vw", position: "absolute", top: 0}}>
         <Box sx={{zIndex: 2}}>
           <Typography
-            sx={{paddingY: "5rem"}}
+            sx={{paddingY: "5rem", fontWeight: 'bolder',color:"rgba(0,70,150,0.9)"}}
             variant={'h2'}
+            component={"h1"}
             textAlign={'center'}>
-            Providers
+            Internet Providers
           </Typography>
           {loading && (
-
             <CircularProgress sx={{
               position: 'absolute',
               top: "50%",
@@ -93,38 +90,17 @@ function IndexPage() {
             }} color="primary"/>
           )
           }
-          <Fade in={!loading} >
-            <Grid container sx={{padding:"2rem"}}  spacing={4} >
+          <Fade in={!loading}>
+            <Grid container sx={{padding: "2rem"}} spacing={4}>
               {providers?.map(
                 (provider, index) => {
                   return (
-                    <Grid onClick={() => setProvider(provider)} item xs={12} sm={10} md={4} lg={3} key={index}>
+                    <Grid onClick={() => setProvider(provider)} item xs={12} sm={10} md={6} lg={4} xl={3} key={index}>
                       <ProviderCard provider={provider}/>
                     </Grid>
                   )
                 }
               )}
-              <Grid item xs={12} sm={10} md={4} lg={3}>
-                <Card
-                  sx={{
-                    padding: '1rem',
-                    height: "100%",
-                    borderRadius: "1rem",
-                    textAlign: 'center',
-                    transition: "transform 0.5s ease-in-out",
-                    "&:hover": {
-                      transform: "scale3d(1.075, 1.075, 1)",
-                      boxShadow: "0px 3px 1px -2px white,0px 2px 2px 0px #bb85fb,0px 1px 5px 0px #c595fd"
-                    },
-                  }}>
-                  <CardContent>
-                    <Add sx={{
-                      color: 'primary.light',
-                      fontSize: '6rem'
-                    }}/>
-                  </CardContent>
-                </Card>
-              </Grid>
             </Grid>
           </Fade>
         </Box>

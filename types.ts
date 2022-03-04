@@ -5,6 +5,7 @@ export type Subscription = {
   interval: string
   price: string
   count: number
+  organization: number
 }
 
 export type Provider = {
@@ -15,4 +16,12 @@ export type Provider = {
   location: string
   description: string
   subscriptions: Subscription[]
+}
+
+export type Transaction = {
+  id: number
+  amount: number
+  phone: string
+  state: "pending" | "success" | "failed"
+  reason_failed: string
 }
