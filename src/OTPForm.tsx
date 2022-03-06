@@ -63,6 +63,7 @@ const OTPForm = ({phone}: OTPFormProps) => {
         <Grid item >
           <OtpInput
             value={otp}
+            isInputNum
             onChange={onChangeHandler}
             numInputs={4}
             inputStyle={{
