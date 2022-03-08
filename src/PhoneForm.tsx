@@ -1,7 +1,8 @@
 import React, {ChangeEvent, FormEvent, useState} from "react";
-import {Box, Button, lighten, TextField, Typography} from "@mui/material";
+import {Box, Button, TextField, Typography} from "@mui/material";
 import Login from "@mui/icons-material/Login";
 import {getInstance} from "../axios";
+import Router from "next/router";
 
 
 type PhoneFormProps = {
@@ -9,6 +10,7 @@ type PhoneFormProps = {
 }
 export const PhoneForm = ({setPhone}: PhoneFormProps) => {
   const [phone, setPhoneInput] = useState<string>("0");
+
   const phoneIsValid = phone.length == 10 && (phone.startsWith("01") || phone.startsWith("07"));
 
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -18,6 +20,11 @@ export const PhoneForm = ({setPhone}: PhoneFormProps) => {
     e.preventDefault()
     if (phoneIsValid) {
       const validPhone = `254${phone.slice(1)}`
+      Router.push({
+        pathname: '/',
+        query: {phone: validPhone},
+      })
+      return
       getInstance()
         .post('send-otp', {phone: validPhone}).then(
         () => {

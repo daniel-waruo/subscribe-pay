@@ -17,6 +17,7 @@
     "axios": "^0.25.0",
     "next": "12.0.9",
     "react": "17.0.2",
+    "react-countdown": "^2.3.2",
     "react-dom": "17.0.2",
     "react-map-gl": "^6.1.19",
     "react-otp-input": "^2.4.0",

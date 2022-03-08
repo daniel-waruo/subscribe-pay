@@ -1,3 +1,4 @@
+
 export type Subscription = {
   id: number
   name: string
@@ -6,6 +7,16 @@ export type Subscription = {
   price: string
   count: number
   organization: number
+}
+
+export type Subscriber = {
+  id: number
+  first_name: string
+  last_name: string
+  email: string
+  phone: string
+  expiry_date: string
+  subscription: Subscription
 }
 
 export type Provider = {
