@@ -40,7 +40,9 @@ type ActiveSectionProps = {
   subscribers?: Subscriber[]
 }
 export const ActiveSection = ({subscribers}: ActiveSectionProps) => {
-
+  if (!subscribers?.length){
+    return null;
+  }
   return (
     <Box sx={{position: 'relative'}}>
       <Box sx={{zIndex: 1000}}>
