@@ -222,8 +222,6 @@ const PaymentFailed = ({transaction, setTransaction}: PaymentLoaderProps) => {
 }
 
 const PaymentLoader = ({subscription, transaction, setTransaction}: PaymentLoaderProps) => {
-  const [intervalId, setIntervalId] = useState<NodeJS.Timer>()
-
   useInterval(
     () => {
       getInstance().post('payments/subscription-status', {

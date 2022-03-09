@@ -19,6 +19,7 @@ import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
 import {getInstance} from "../axios";
 import {useRouter} from "next/router";
 import PaymentLoader from "./PaymentLoader";
+import Router from "next/router";
 
 
 type ProviderModalProps = {
@@ -191,6 +192,7 @@ const ProviderModal = ({handleClose, provider}: ProviderModalProps) => {
     if (transaction?.state != "pending") {
       setTransaction(undefined)
       handleClose()
+      Router.reload()
     }
   }
   return (
